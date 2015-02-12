@@ -27,7 +27,7 @@ trie::trie(int N1, int numrules1, int bucketSize1, float spfac1, struct pc_rule*
 
   for(i=1; i<=N; i++) nodeSet[i].child = (int *)malloc(sizeof(int));
 
-  printf("size of tree node %d\n", sizeof(nodeItem));
+  printf("size of tree node %d\n", (int)sizeof(nodeItem));
   
   nodeSet[root].isleaf = 0;
   nodeSet[root].nrules = numrules;
@@ -69,7 +69,7 @@ void trie::choose_np_dim(nodeItem *v){
   dheap H1(MAXRULES,2);
   dheap H2(MAXRULES,2);
   int   Nr;
-  int flag = 1;
+  int flag = 1;//1: every time choose the minnc to reduce cuts; 0: choose the maxnc ---kun
   
   for(k=0; k<MAXDIMENSIONS; k++) nr[k]=NULL;
 
@@ -113,7 +113,7 @@ void trie::choose_np_dim(nodeItem *v){
         v->dim[k] = 0;
         v->ncuts[k] = 1;
       }
-      printf("here you go\n");
+      printf("Cut nothing.\n");//Changed by kun
       return;
   }
   
@@ -381,6 +381,9 @@ void trie::createtrie(){
                 
                 if(!empty){
                   n++;
+                  if (freelist == Null) {
+                      fatal("Not enough tree node!");
+                  }
                   nodeSet[v].child[index] = freelist; 
                   u = freelist;
                   freelist = nodeSet[freelist].child[0];	
@@ -443,8 +446,8 @@ void trie::createtrie(){
       }
 
       if(v == last){
-	pass ++;
-	last = Q.tail();
+          pass ++;
+          last = Q.tail();
       }
     }
     
