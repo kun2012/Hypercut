@@ -5,12 +5,12 @@ class trie {
 		int lengthoflist;       //
 		int *rulelist;
   		int nrules;             //number of rules in this node
-            int *ruleid;            //rule ids in this node
+        int *ruleid;            //rule ids in this node
   		struct range field[MAXDIMENSIONS];      
   		int dim[MAXDIMENSIONS];   //dimensions to cut
   		int ncuts[MAXDIMENSIONS]; //number of cuts
   		//int child[MAXCUTS];       //child pointers
-            int *child;             //child pointer
+        int *child;             //child pointer
 	};
 	int	N;			// max number of nodes in trie
 	int	n;			// current number of nodes in trie
@@ -19,12 +19,12 @@ class trie {
 	int     n3;                     // stored rules
 	float   n4;                     // number of memeory access
 	int     n5;                     // internally stored rules
-        float   worstcost;
+    float   worstcost;
 	int     bucketSize;                 
 	float   spfac;
 	int     redun;
 	int     push;
-        int     pushthresh;
+    int     pushthresh;
 	int     numrules;
 	struct  pc_rule *rule;
 	int 	root;			// root of trie
@@ -40,13 +40,13 @@ public:	        trie(int, int, int, float, struct pc_rule*, int, int, int);
 		~trie();
 		
 	int     trieLookup(int*);
-	int	  trieSize();
+	int	    trieSize();
 	int     trieDepth();
 	int     trieRedun();
 	int     trieRule();
 	float   trieMemAccess();
 	int     trieInRule();
-        float   trieWorstcost();
+    float   trieWorstcost();
 };
 
 inline int trie::trieSize() {return n;}

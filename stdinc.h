@@ -24,11 +24,12 @@ inline int abs(int x) { return x < 0 ? -x : x; }
 inline void warning(char* p) { fprintf(stderr,"Warning:%s \n",p); }
 inline void fatal(char* string) {fprintf(stderr,"Fatal:%s\n",string); exit(1); }
 
-double pow(double,double);
-double log(double);
+inline void fatal(const char* string) {fprintf(stderr,"Fatal:%s\n",string); exit(1); }
+//double pow(double,double);
+//double log(double);
 
 // long random();
-double exp(double),log(double);
+//double exp(double),log(double);
 
 // Return a random number in [0,1] 
 inline double randfrac() { return ((double) random())/BIGINT; }

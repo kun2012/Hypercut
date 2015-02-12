@@ -8,7 +8,7 @@
 
 dheap::dheap(int N1, int d1) {
 // Initialize a heap to store items in {1,...,N}.
-	static int x = 0; x++;
+//	static int x = 0; x++; //Removed by kun, seems not useful
 	N = N1; d = d1; n = 0;
 	h = new item[N+1];
 	pos = new int[N+1];
@@ -83,7 +83,7 @@ void dheap::print() {
 	printf("   h:");
 	for (x = 1; x <= n; x++) printf(" %2d",h[x]);
 	printf("\nkvec:");
-	for (x = 1; x <= n; x++) printf(" %8x",kvec[h[x]]);
+	for (x = 1; x <= n; x++) printf(" %8x",(unsigned int)kvec[h[x]]);
 	printf("\n pos:");
 	for (x = 1; x <= n; x++) printf(" %2d",pos[h[x]]);
 	putchar('\n');

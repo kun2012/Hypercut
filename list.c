@@ -5,7 +5,7 @@ list::list(int N1) {
 	N = N1; next = new int[N+1];
 	first = last = Null;
 	for (int i = 1; i <= N; i++) next[i] = -1;
-	next[Null] = Null;
+	//next[Null] = Null;  //Removed by kun, this may be wrong(Null=-1)
 }
 
 list::~list() { delete [] next; }
@@ -15,7 +15,7 @@ void list::reset(int N1) {
 	delete [] next; N = N1; next = new int[N+1];
 	first = last = Null;
 	for (int i = 1; i <= N; i++) next[i] = -1;
-	next[Null] = Null;
+	//next[Null] = Null; //Removed by kun
 }
 	
 // Remove all elements from list.
@@ -55,7 +55,7 @@ void list::operator=(list& L) {
 		delete [] next; next = new int[L.N+1];
 		first = last = Null;
 		for (int i = 1; i <= N; i++) next[i] = -1;
-		next[Null] = Null;
+		//next[Null] = Null; //Removed by kun
 	} else clear();
 	for (int i = L(1); i != Null; i = L.suc(i))
 		(*this) &= i;
