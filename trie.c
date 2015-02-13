@@ -373,6 +373,7 @@ void trie::createtrie(){
     }
     if(nodeSet[v].nrules > bucketSize){
       choose_np_dim(&nodeSet[v]);
+      /*
       int kkx = 1;
       for (int kki = 0; kki < 5; kki++) 
           kkx *= nodeSet[v].ncuts[kki];
@@ -393,6 +394,7 @@ void trie::createtrie(){
 
           scanf("%d", &kkx);
       }
+         */
       if(push == 1 && pass <= pushthresh ){
         pushing_rule(&nodeSet[v]);
       }
@@ -457,9 +459,9 @@ void trie::createtrie(){
                   freelist = nodeSet[freelist].child[0];	
                   nodeSet[u].nrules = nr;
                   nodeSet[u].nonemptylist = 0;
-                  if (freelist % 100000 == 0) {
-                      printf("freelist = %d\n", freelist);
-                  }
+                  //if (freelist % 100000 == 0) {
+                   //   printf("freelist = %d\n", freelist);
+                  //}
                   if(nr <= bucketSize){
                     nodeSet[u].isleaf = 1;
                     n3 += nr;
@@ -519,7 +521,7 @@ void trie::createtrie(){
 
       if(v == last){
           pass++;
-          printf("pass = %d\n", pass);
+          //printf("pass = %d\n", pass);
           last = Q.tail();
       }
     }
