@@ -125,16 +125,58 @@ void trie::choose_np_dim(nodeItem *v){
   avgcomponent = 0.0;
   for(k=0; k<MAXDIMENSIONS; k++) avgcomponent += ncomponent[k];
   avgcomponent = avgcomponent/MAXDIMENSIONS;
-  
+
+  //All components are equal, this situation is added by kun
+  bool kkequal = true;
+  for(k=0; k<MAXDIMENSIONS - 1; k++) {
+      if (ncomponent[k] != ncomponent[k + 1]){
+          kkequal = false;
+          break;
+      }
+  }
+
+if (kkequal) {
+    
+   v->dim[0] = 1;
+   nc[0] = 2;
+
+   v->dim[1] = 1;
+   nc[1] = 2;
+
+   v->dim[2] = 1;
+   nc[2] = 2;
+   
+   v->dim[3] = 0;
+   nc[3] = 1;
+     
+   v->dim[4] = 0;
+   nc[4] = 1;
+     
+}else {
+  int kkflag = true;
   for(k=0; k<MAXDIMENSIONS; k++){
     if(ncomponent[k] > avgcomponent && v->field[k].high - v->field[k].low > 1){
       v->dim[k] = 1;
       nc[k] = 2;
+      kkflag = false;
     }else{
       v->dim[k] = 0;
       nc[k] = 1;
     }
   }
+  if (kkflag) {
+
+  for(k=0; k<MAXDIMENSIONS; k++)
+      printf("%d \n", ncomponent[k]);
+      printf("\nKkflag\n");
+  }
+}
+  //if (kkflag) {
+
+  //for(k=0; k<MAXDIMENSIONS; k++)
+   //   printf("%d \n", ncomponent[k]);
+    //  printf("\nKkflag\n");
+  //}
 
   //choose the number of cuts
   for(k=0; k<MAXDIMENSIONS; k++){
@@ -324,13 +366,33 @@ void trie::createtrie(){
   while(Q(1) != Null){
   	
     v = Q(1); Q <<= 1;
-    
+
     //printf("dequeue %d\n", v);
     if(redun == 1){
       remove_redundancy(&nodeSet[v]);
     }
     if(nodeSet[v].nrules > bucketSize){
       choose_np_dim(&nodeSet[v]);
+      int kkx = 1;
+      for (int kki = 0; kki < 5; kki++) 
+          kkx *= nodeSet[v].ncuts[kki];
+      if (kkx == 1) {
+          printf("-----kkx==1------\n");
+          printf("rule number: %d\n", nodeSet[v].nrules);
+          for (int kki = 0; kki < 5; kki++) {
+              printf("dim[%d]=%d\n", kki, nodeSet[v].dim[kki]);
+              printf("%d\t%d\n", nodeSet[v].field[kki].low, nodeSet[v].field[kki].high);
+          }
+
+          //for (int kki = 0; kki < 3; kki++) {
+           //   printf("rule %d\n", kki);
+            //  for (int kkj = 0; kkj < 5; kkj++)
+             //     printf("%d\t%d\n", rule[nodeSet[v].ruleid[kki]].field[kkj].low,
+              //    rule[nodeSet[v].ruleid[kki]].field[kkj].high);
+          //}
+
+          scanf("%d", &kkx);
+      }
       if(push == 1 && pass <= pushthresh ){
         pushing_rule(&nodeSet[v]);
       }
@@ -456,11 +518,11 @@ void trie::createtrie(){
       }
 
       if(v == last){
-          pass ++;
+          pass++;
+          printf("pass = %d\n", pass);
           last = Q.tail();
       }
     }
-    
   }	
 }
 

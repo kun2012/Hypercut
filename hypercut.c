@@ -184,7 +184,7 @@ int main(int argc, char* argv[]){
   //    rule[i].field[4].low, rule[i].field[4].high);
   //}
   
-  trie T(500*numrules, numrules, bucketSize, spfac, rule, redun, push, pushthresh);
+  trie T(2000*numrules, numrules, bucketSize, spfac, rule, redun, push, pushthresh);
   
   printf("*************************\n");
   printf("number of nodes = %d\n", T.trieSize());
