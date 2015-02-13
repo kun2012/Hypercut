@@ -28,6 +28,7 @@ trie::trie(int N1, int numrules1, int bucketSize1, float spfac1, struct pc_rule*
   for(i=1; i<=N; i++) nodeSet[i].child = (int *)malloc(sizeof(int));
 
   printf("size of tree node %d\n", (int)sizeof(nodeItem));
+  printf("Max node number: %d\n", N); //Added by kun
   
   nodeSet[root].isleaf = 0;
   nodeSet[root].nrules = numrules;
@@ -48,8 +49,9 @@ trie::trie(int N1, int numrules1, int bucketSize1, float spfac1, struct pc_rule*
   for (i = 2; i < N; i++) nodeSet[i].child[0] = i+1;
   nodeSet[N].child[0] = Null;
     
+  printf("Start create trie...\n");
   createtrie();
-	
+  printf("End create trie...\n");
 }
 
 trie::~trie() { delete [] nodeSet; }
@@ -65,14 +67,14 @@ void trie::choose_np_dim(nodeItem *v){
   float avgcomponent;         
   int i,j,k;
   int lo,hi,r;
-  int temp, tmpkey;
+  int temp;
+  unsigned long tmpkey; // change type by kun
   dheap H1(MAXRULES,2);
   dheap H2(MAXRULES,2);
   int   Nr;
   int flag = 1;//1: every time choose the minnc to reduce cuts; 0: choose the maxnc ---kun
   
   for(k=0; k<MAXDIMENSIONS; k++) nr[k]=NULL;
-
   //count the unique components on each dimension
   for(k=0; k<MAXDIMENSIONS; k++){
     ncomponent[k]=0;    
@@ -86,7 +88,10 @@ void trie::choose_np_dim(nodeItem *v){
     while(H1.findmin()!= Null){
       temp = H1.findmin();
       tmpkey = H1.key(temp);
-      while(tmpkey == H1.key(H1.findmin())){
+      //while(tmpkey == H1.key(H1.findmin())){ Bug! H1.findmin() may return Null ---kun
+      while(true) {
+        if (H1.findmin() == Null) break;
+        if (tmpkey != H1.key(H1.findmin())) break;
         j = H1.deletemin();
     	  if(rule[j].field[k].high > v->field[k].high){
     	    H2.insert(j, v->field[k].high);	
@@ -303,7 +308,8 @@ void trie::pushing_rule(nodeItem *v){
 
 void trie::createtrie(){
 	
-  list Q(MAXNODES);
+  //list Q(MAXNODES);
+  list Q(N); //Changed by kun
   int last;
   int nr;
   int empty;
@@ -381,7 +387,7 @@ void trie::createtrie(){
                 
                 if(!empty){
                   n++;
-                  if (freelist == Null) {
+                  if (freelist == Null ) {
                       fatal("Not enough tree node!");
                   }
                   nodeSet[v].child[index] = freelist; 
@@ -389,11 +395,15 @@ void trie::createtrie(){
                   freelist = nodeSet[freelist].child[0];	
                   nodeSet[u].nrules = nr;
                   nodeSet[u].nonemptylist = 0;
+                  if (freelist % 100000 == 0) {
+                      printf("freelist = %d\n", freelist);
+                  }
                   if(nr <= bucketSize){
                     nodeSet[u].isleaf = 1;
                     n3 += nr;
                   }else{
                     nodeSet[u].isleaf = 0;
+                    //printf("enque %d\n", u);
                     Q &= u;
                     //printf("enque %d\n", u);
                   }

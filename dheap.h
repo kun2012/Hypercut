@@ -26,6 +26,7 @@ public:		dheap(int=100,int=2);
 	item 	deletemin();		// delete and return smallest item
 	void	changekey(item,keytyp);	// change the key of an item
 	void	print();		// print the heap
+    int     size(); //Added by kun
 };
 
 // Return item with smallest key.
@@ -39,3 +40,6 @@ inline bit dheap::member(item i) { return pos[i] != Null; }
 
 // Return true if heap is empty, else false.
 inline bit dheap::empty() { return n == 0; };
+
+//Return # of elements in heap
+inline int dheap::size() { return n;};
