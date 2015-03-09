@@ -1,6 +1,7 @@
 #include "stdinc.h"
 #include "hypercut.h"
 #include "trie.h"
+#include <sys/time.h>
 
 int bucketSize = 16; // leaf threashold
 float spfac = 2.0;   // space explosion factor
@@ -16,11 +17,11 @@ int loadrule(FILE *fp, struct pc_rule *rule){
   unsigned sip1, sip2, sip3, sip4, siplen;
   unsigned dip1, dip2, dip3, dip4, diplen;
   unsigned proto, protomask;
-  
+
   while(1){
-  	
-    if(fscanf(fp,"@%d.%d.%d.%d/%d\t%d.%d.%d.%d/%d\t%d : %d\t%d : %d\t%x/%x\n", 
-        &sip1, &sip2, &sip3, &sip4, &siplen, &dip1, &dip2, &dip3, &dip4, &diplen, 
+
+    if(fscanf(fp,"@%d.%d.%d.%d/%d\t%d.%d.%d.%d/%d\t%d : %d\t%d : %d\t%x/%x\n",
+        &sip1, &sip2, &sip3, &sip4, &siplen, &dip1, &dip2, &dip3, &dip4, &diplen,
         &rule[i].field[2].low, &rule[i].field[2].high, &rule[i].field[3].low, &rule[i].field[3].high,
         &proto, &protomask) != 16) break;
     if(siplen == 0){
@@ -32,16 +33,16 @@ int loadrule(FILE *fp, struct pc_rule *rule){
       rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;
     }else if(siplen > 8 && siplen <= 16){
       tmp = sip1<<24; tmp += sip2<<16;
-      rule[i].field[0].low = tmp; 	
-      rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;	
+      rule[i].field[0].low = tmp;
+      rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;
     }else if(siplen > 16 && siplen <= 24){
-      tmp = sip1<<24; tmp += sip2<<16; tmp +=sip3<<8; 
-      rule[i].field[0].low = tmp; 	
-      rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;			
+      tmp = sip1<<24; tmp += sip2<<16; tmp +=sip3<<8;
+      rule[i].field[0].low = tmp;
+      rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;
     }else if(siplen > 24 && siplen <= 32){
       tmp = sip1<<24; tmp += sip2<<16; tmp += sip3<<8; tmp += sip4;
-      rule[i].field[0].low = tmp; 
-      rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;	
+      rule[i].field[0].low = tmp;
+      rule[i].field[0].high = rule[i].field[0].low + (1<<(32-siplen)) - 1;
     }else{
       printf("Src IP length exceeds 32\n");
       return 0;
@@ -55,16 +56,16 @@ int loadrule(FILE *fp, struct pc_rule *rule){
       rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;
     }else if(diplen > 8 && diplen <= 16){
       tmp = dip1<<24; tmp +=dip2<<16;
-      rule[i].field[1].low = tmp; 	
-      rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;	
+      rule[i].field[1].low = tmp;
+      rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;
     }else if(diplen > 16 && diplen <= 24){
       tmp = dip1<<24; tmp +=dip2<<16; tmp+=dip3<<8;
-      rule[i].field[1].low = tmp; 	
-      rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;			
+      rule[i].field[1].low = tmp;
+      rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;
     }else if(diplen > 24 && diplen <= 32){
       tmp = dip1<<24; tmp +=dip2<<16; tmp+=dip3<<8; tmp +=dip4;
-      rule[i].field[1].low = tmp; 	
-      rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;	
+      rule[i].field[1].low = tmp;
+      rule[i].field[1].high = rule[i].field[1].low + (1<<(32-diplen)) - 1;
     }else{
       printf("Dest IP length exceeds 32\n");
       return 0;
@@ -79,7 +80,7 @@ int loadrule(FILE *fp, struct pc_rule *rule){
       printf("Protocol mask error\n");
       return 0;
     }
-       
+
     i++;
   }
   return i;
@@ -117,15 +118,15 @@ void parseargs(int argc, char *argv[]) {
 	  ok = 0;
     }
   }
-  
+
   if(bucketSize <= 0 || bucketSize > MAXBUCKETS){
     printf("bucketSize should be greater than 0 and less than %d\n", MAXBUCKETS);
     ok = 0;
-  }	
+  }
   if(spfac < 0){
     printf("space factor should be >= 0\n");
     ok = 0;
-  }	
+  }
   if(pushthresh < 0){
     printf("Push threshold should be >= 0\n");
     ok = 0;
@@ -134,13 +135,14 @@ void parseargs(int argc, char *argv[]) {
     printf("can't open ruleset file\n");
     ok = 0;
   }
- 
+
   if (!ok || optind < argc) {
     fprintf (stderr, "hypercut [-b bucketSize][-s spfac][-d][-p pushthresh][-r ruleset][-t trace]\n");
     fprintf (stderr, "Type \"hypercut -h\" for help\n");
     exit(1);
   }
-  
+
+#ifndef KUN_SPEED_TEST
   printf("Bucket Size =  %d\n", bucketSize);
   printf("Space Factor = %f\n", spfac);
   if(redun == 1){
@@ -153,54 +155,85 @@ void parseargs(int argc, char *argv[]) {
   }else{
     printf("Rule pushing optimization off\n\n");
   }
-  
+#endif
+
 }
+
+#define MAX_TRACES 100000
+//Data structure and function for trace reading, added by kun
+struct flow {
+    unsigned int src_ip;
+    unsigned int dst_ip;
+    unsigned int src_port;
+    unsigned int dst_port;
+    unsigned int proto;
+    unsigned int trueRID;
+};
+
+int trace_rule_num; //kun
+//Trace reading, kun
+struct flow* read_trace_file(FILE* traceFile) {
+    struct flow *flows = new struct flow[MAX_TRACES];
+    trace_rule_num = 0;
+    int ret = 0;
+    while (true) {
+        struct flow f;
+        int ret = fscanf(traceFile, "%u %u %u %u %u %u", &f.src_ip, &f.dst_ip, &f.src_port, &f.dst_port, &f.proto, &f.trueRID);
+        if (ret != 6)
+            break;
+        flows[trace_rule_num++] = f;
+    }
+    fclose(traceFile);
+    return flows;
+}
+
+int pt[MAX_TRACES][MAXDIMENSIONS];
 
 int main(int argc, char* argv[]){
 
   int numrules=0;  // actual number of rules in rule set
-  struct pc_rule *rule; 
-  int i,j; 
+  struct pc_rule *rule;
+  int i,j;
   int header[MAXDIMENSIONS];
   int matchid, fid;
   char *s = (char *)calloc(200, sizeof(char));
-  
   parseargs(argc, argv);
-   
   while(fgets(s, 200, fpr) != NULL)numrules++;
   rewind(fpr);
-    
+
+#ifndef KUN_SPEED_TEST
   printf("the number of rules = %d\n", numrules);
-        
+#endif
+
   rule = (pc_rule *)calloc(numrules, sizeof(pc_rule));
   numrules = loadrule(fpr, rule);
-  
+
   //for(i=0;i<numrules;i++){
   //  printf("%d: %x:%x %x:%x %u:%u %u:%u %u:%u\n", i+1,
-  //    rule[i].field[0].low, rule[i].field[0].high, 
+  //    rule[i].field[0].low, rule[i].field[0].high,
   //    rule[i].field[1].low, rule[i].field[1].high,
   //    rule[i].field[2].low, rule[i].field[2].high,
-  //    rule[i].field[3].low, rule[i].field[3].high, 
+  //    rule[i].field[3].low, rule[i].field[3].high,
   //    rule[i].field[4].low, rule[i].field[4].high);
   //}
-  
   trie T(2000*numrules, numrules, bucketSize, spfac, rule, redun, push, pushthresh);
-  
+
+#ifndef KUN_SPEED_TEST
   printf("*************************\n");
   printf("number of nodes = %d\n", T.trieSize());
-  printf("max trie depth = %d\n", T.trieDepth()); 
+  printf("max trie depth = %d\n", T.trieDepth());
   printf("remove redun = %d\n", T.trieRedun());
   printf("Stored rules = %d\n", T.trieRule());
   printf("Internally stored rules = %d\n", T.trieInRule());
   printf("Bytes/filter = %f\n", (T.trieSize()*NODESIZE + numrules*RULESIZE + T.trieRule()*RULEPTSIZE)*4/numrules);
   printf("*************************\n");
-  
-  if(fpt != NULL){
+#endif
+
+/*  if(fpt != NULL){
     i=0; j=0;
-    while(fscanf(fpt,"%u %u %d %d %d %d\n", 
+    while(fscanf(fpt,"%u %u %d %d %d %d\n",
           &header[0], &header[1], &header[2], &header[3], &header[4], &fid) != Null){
       i++;
-      
       if((matchid = T.trieLookup(header)) == -1){
         printf("? packet %d match NO rule, should be %d\n", i, fid+1);
         j++;
@@ -218,6 +251,32 @@ int main(int argc, char* argv[]){
     printf("Worstcase Bytes/pkt = %f\n", T.trieWorstcost()*4.0);
   }else{
     printf("No packet trace input\n");
-  }
-  
-}  
+  }*/
+
+    //Speed test, added by kun
+    struct flow *flows = read_trace_file(fpt);
+    int error_cnt = 0;
+    struct timeval  gStartTime,gEndTime;
+    long elapsedTimeMicroSec;
+
+    for (int i = 0; i < trace_rule_num; i++) {
+        pt[i][0] = flows[i].src_ip;
+        pt[i][1] = flows[i].dst_ip;
+        pt[i][2] = flows[i].src_port;
+        pt[i][3] = flows[i].dst_port;
+        pt[i][4] = flows[i].proto;
+    }
+
+    gettimeofday(&gStartTime, NULL);
+    for (int i = 0; i < trace_rule_num; i++) {
+        matchid = T.trieLookup(pt[i]);
+        if (matchid != flows[i].trueRID - 1) {
+            error_cnt++;
+        }
+    }
+    gettimeofday(&gEndTime, NULL);
+
+    elapsedTimeMicroSec = (gEndTime.tv_sec - gStartTime.tv_sec) * 1000000;
+    elapsedTimeMicroSec += (gEndTime.tv_usec - gStartTime.tv_usec);
+    printf("%.4fMqps\n", (double)trace_rule_num / (double)elapsedTimeMicroSec);
+}
