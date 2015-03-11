@@ -276,7 +276,11 @@ int main(int argc, char* argv[]){
     }
     gettimeofday(&gEndTime, NULL);
 
+    unsigned int total_memory = (T.trieSize()*NODESIZE + numrules*RULESIZE + T.trieRule()*RULEPTSIZE)*4;
+    unsigned int total_memory_in_kb = total_memory / 1024 + (total_memory % 1024 == 0? 0: 1);
+    printf("%uKB\t",total_memory_in_kb);
+
     elapsedTimeMicroSec = (gEndTime.tv_sec - gStartTime.tv_sec) * 1000000;
     elapsedTimeMicroSec += (gEndTime.tv_usec - gStartTime.tv_usec);
-    printf("%.4fMqps\n", (double)trace_rule_num / (double)elapsedTimeMicroSec);
+    printf("%.4lfMqps\n", (double)trace_rule_num / (double)elapsedTimeMicroSec);
 }
